@@ -103,9 +103,7 @@ class GuoFengDreamer {
         }
         
         this.updateApiStatus();
-        this.showToast('API配置已保存', 'success');
-        
-        this.toggleApiConfig();
+        this.showToast('✅ API密钥配置已成功保存！', 'success');
     }
 
     clearApiConfig() {
@@ -119,7 +117,7 @@ class GuoFengDreamer {
         document.getElementById('baseUrlInput').value = '';
         
         this.updateApiStatus();
-        this.showToast('API配置已清除', 'info');
+        this.showToast('🗑️ API配置已清除', 'info');
     }
 
     async loadConfig() {
