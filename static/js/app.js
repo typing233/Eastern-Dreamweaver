@@ -566,12 +566,13 @@ class GuoFengDreamer {
             ctx.font = '14px "Noto Serif SC", serif';
             ctx.fillText(`生成时间: ${new Date().toLocaleString('zh-CN')}`, 20, 65);
             
+            let y = 100;
+            
             if (this.currentStory) {
                 ctx.fillStyle = '#2C1810';
                 ctx.font = '16px "Noto Serif SC", serif';
                 
                 const paragraphs = this.currentStory.split('\n').filter(p => p.trim());
-                let y = 100;
                 
                 paragraphs.forEach(para => {
                     const words = para.split('');
