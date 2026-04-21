@@ -7,6 +7,7 @@ class GuoFengDreamer {
         this.currentImageDescription = '';
         this.apiKey = '';
         this.baseUrl = '';
+        this.backendApiConfigured = false;
         this.init();
     }
 
@@ -40,7 +41,11 @@ class GuoFengDreamer {
         if (this.apiKey) {
             statusDot.classList.add('configured');
             statusText.classList.add('configured');
-            statusText.textContent = 'API密钥已配置';
+            statusText.textContent = 'API密钥已配置（本地）';
+        } else if (this.backendApiConfigured) {
+            statusDot.classList.add('configured');
+            statusText.classList.add('configured');
+            statusText.textContent = 'API密钥已配置（服务器）';
         } else {
             statusDot.classList.remove('configured');
             statusText.classList.remove('configured');
@@ -48,11 +53,15 @@ class GuoFengDreamer {
         }
     }
 
-    toggleApiConfig() {
+    toggleApiConfig(event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        
         const content = document.getElementById('apiConfigContent');
         const toggleBtn = document.getElementById('toggleApiConfig');
         
-        if (content.style.display === 'none') {
+        if (content.style.display === 'none' || content.style.display === '') {
             content.style.display = 'flex';
             toggleBtn.textContent = '收起配置';
         } else {
@@ -120,9 +129,10 @@ class GuoFengDreamer {
             if (data.success) {
                 this.minElements = data.data.min_elements;
                 this.maxElements = data.data.max_elements;
+                this.backendApiConfigured = data.data.api_configured;
                 document.getElementById('maxElements').textContent = this.maxElements;
                 
-                if (!this.apiKey && data.data.api_configured) {
+                if (!this.apiKey) {
                     this.updateApiStatus();
                 }
             }
@@ -627,11 +637,26 @@ class GuoFengDreamer {
         document.getElementById('copyBtn').addEventListener('click', () => this.copyStory());
         document.getElementById('screenshotBtn').addEventListener('click', () => this.saveScreenshot());
         
-        document.getElementById('toggleApiConfig').addEventListener('click', () => this.toggleApiConfig());
-        document.getElementById('apiConfigHeader').addEventListener('click', () => this.toggleApiConfig());
-        document.getElementById('saveApiConfig').addEventListener('click', () => this.saveApiConfig());
-        document.getElementById('clearApiConfig').addEventListener('click', () => this.clearApiConfig());
-        document.getElementById('toggleKeyVisibility').addEventListener('click', () => this.toggleKeyVisibility());
+        document.getElementById('toggleApiConfig').addEventListener('click', (e) => this.toggleApiConfig(e));
+        document.getElementById('apiConfigHeader').addEventListener('click', (e) => {
+            if (e.target.id === 'apiConfigHeader' || 
+                e.target.classList.contains('config-icon') || 
+                e.target.classList.contains('config-title')) {
+                this.toggleApiConfig(e);
+            }
+        });
+        document.getElementById('saveApiConfig').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.saveApiConfig();
+        });
+        document.getElementById('clearApiConfig').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.clearApiConfig();
+        });
+        document.getElementById('toggleKeyVisibility').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleKeyVisibility();
+        });
     }
 }
 
