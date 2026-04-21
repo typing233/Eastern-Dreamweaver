@@ -5,13 +5,112 @@ class GuoFengDreamer {
         this.maxElements = 5;
         this.currentStory = '';
         this.currentImageDescription = '';
+        this.apiKey = '';
+        this.baseUrl = '';
         this.init();
     }
 
     init() {
         this.loadConfig();
+        this.loadApiConfig();
         this.loadElements();
         this.bindEvents();
+    }
+
+    loadApiConfig() {
+        const savedKey = localStorage.getItem('guofeng_api_key');
+        const savedUrl = localStorage.getItem('guofeng_base_url');
+        
+        if (savedKey) {
+            this.apiKey = savedKey;
+            document.getElementById('apiKeyInput').value = savedKey;
+        }
+        if (savedUrl) {
+            this.baseUrl = savedUrl;
+            document.getElementById('baseUrlInput').value = savedUrl;
+        }
+        
+        this.updateApiStatus();
+    }
+
+    updateApiStatus() {
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        
+        if (this.apiKey) {
+            statusDot.classList.add('configured');
+            statusText.classList.add('configured');
+            statusText.textContent = 'API密钥已配置';
+        } else {
+            statusDot.classList.remove('configured');
+            statusText.classList.remove('configured');
+            statusText.textContent = '未配置API密钥';
+        }
+    }
+
+    toggleApiConfig() {
+        const content = document.getElementById('apiConfigContent');
+        const toggleBtn = document.getElementById('toggleApiConfig');
+        
+        if (content.style.display === 'none') {
+            content.style.display = 'flex';
+            toggleBtn.textContent = '收起配置';
+        } else {
+            content.style.display = 'none';
+            toggleBtn.textContent = '展开配置';
+        }
+    }
+
+    toggleKeyVisibility() {
+        const input = document.getElementById('apiKeyInput');
+        const btn = document.getElementById('toggleKeyVisibility');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.textContent = '🙈';
+        } else {
+            input.type = 'password';
+            btn.textContent = '👁️';
+        }
+    }
+
+    saveApiConfig() {
+        const apiKey = document.getElementById('apiKeyInput').value.trim();
+        const baseUrl = document.getElementById('baseUrlInput').value.trim();
+        
+        if (!apiKey) {
+            this.showToast('请输入API密钥', 'error');
+            return;
+        }
+        
+        this.apiKey = apiKey;
+        this.baseUrl = baseUrl;
+        
+        localStorage.setItem('guofeng_api_key', apiKey);
+        if (baseUrl) {
+            localStorage.setItem('guofeng_base_url', baseUrl);
+        } else {
+            localStorage.removeItem('guofeng_base_url');
+        }
+        
+        this.updateApiStatus();
+        this.showToast('API配置已保存', 'success');
+        
+        this.toggleApiConfig();
+    }
+
+    clearApiConfig() {
+        this.apiKey = '';
+        this.baseUrl = '';
+        
+        localStorage.removeItem('guofeng_api_key');
+        localStorage.removeItem('guofeng_base_url');
+        
+        document.getElementById('apiKeyInput').value = '';
+        document.getElementById('baseUrlInput').value = '';
+        
+        this.updateApiStatus();
+        this.showToast('API配置已清除', 'info');
     }
 
     async loadConfig() {
@@ -22,6 +121,10 @@ class GuoFengDreamer {
                 this.minElements = data.data.min_elements;
                 this.maxElements = data.data.max_elements;
                 document.getElementById('maxElements').textContent = this.maxElements;
+                
+                if (!this.apiKey && data.data.api_configured) {
+                    this.updateApiStatus();
+                }
             }
         } catch (error) {
             console.error('加载配置失败:', error);
@@ -129,15 +232,24 @@ class GuoFengDreamer {
         this.showLoading();
 
         try {
+            const requestBody = {
+                elements: Array.from(this.selectedElements),
+                style: style
+            };
+            
+            if (this.apiKey) {
+                requestBody.api_key = this.apiKey;
+            }
+            if (this.baseUrl) {
+                requestBody.base_url = this.baseUrl;
+            }
+            
             const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    elements: Array.from(this.selectedElements),
-                    style: style
-                })
+                body: JSON.stringify(requestBody)
             });
 
             const data = await response.json();
@@ -174,6 +286,11 @@ class GuoFengDreamer {
         document.getElementById('illustrationLoading').style.display = 'flex';
         document.getElementById('storyText').querySelectorAll('p').forEach(p => p.remove());
         document.getElementById('illustrationDisplay').style.display = 'none';
+        
+        const oldDesc = document.querySelector('.illustration-description');
+        if (oldDesc) {
+            oldDesc.remove();
+        }
     }
 
     hideLoading() {
@@ -509,6 +626,12 @@ class GuoFengDreamer {
         document.getElementById('backBtn').addEventListener('click', () => this.showSelectionSection());
         document.getElementById('copyBtn').addEventListener('click', () => this.copyStory());
         document.getElementById('screenshotBtn').addEventListener('click', () => this.saveScreenshot());
+        
+        document.getElementById('toggleApiConfig').addEventListener('click', () => this.toggleApiConfig());
+        document.getElementById('apiConfigHeader').addEventListener('click', () => this.toggleApiConfig());
+        document.getElementById('saveApiConfig').addEventListener('click', () => this.saveApiConfig());
+        document.getElementById('clearApiConfig').addEventListener('click', () => this.clearApiConfig());
+        document.getElementById('toggleKeyVisibility').addEventListener('click', () => this.toggleKeyVisibility());
     }
 }
 
