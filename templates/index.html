@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>国风造梦 - AI国风共创平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">国风造梦</h1>
+            <p class="subtitle">AI国风共创平台 · 5分钟零门槛生成专属故事</p>
+        </header>
+
+        <main class="main-content">
+            <section class="selection-section" id="selectionSection">
+                <div class="selection-header">
+                    <h2>选择你的元素</h2>
+                    <div class="selected-count">
+                        <span id="selectedCount">0</span> / <span id="maxElements">5</span>
+                    </div>
+                </div>
+                
+                <div class="style-selector">
+                    <label>故事风格：</label>
+                    <select id="styleSelect">
+                        <option value="fairy_tale">童话奇幻</option>
+                        <option value="wuxia">武侠江湖</option>
+                    </select>
+                </div>
+
+                <div class="categories-container" id="categoriesContainer">
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-primary" id="dreamBtn" disabled>
+                        <span class="btn-text">✨ 造梦 ✨</span>
+                    </button>
+                    <button class="btn btn-secondary" id="clearBtn" style="display: none;">
+                        <span class="btn-text">清空选择</span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="result-section" id="resultSection" style="display: none;">
+                <div class="result-header">
+                    <h2>你的国风故事</h2>
+                    <div class="action-buttons">
+                        <button class="btn btn-outline" id="copyBtn">
+                            📋 复制文本
+                        </button>
+                        <button class="btn btn-outline" id="screenshotBtn">
+                            📸 保存截图
+                        </button>
+                        <button class="btn btn-secondary" id="backBtn">
+                            ← 重新创作
+                        </button>
+                    </div>
+                </div>
+
+                <div class="result-content" id="resultContent">
+                    <div class="story-card" id="storyCard">
+                        <div class="illustration-area" id="illustrationArea">
+                            <div class="illustration-placeholder">
+                                <div class="loading-spinner" id="illustrationLoading">
+                                    <div class="spinner"></div>
+                                    <p>AI画师正在创作中...</p>
+                                </div>
+                            </div>
+                            <div class="illustration-display" id="illustrationDisplay" style="display: none;">
+                            </div>
+                        </div>
+                        <div class="story-text" id="storyText">
+                            <div class="loading-spinner" id="storyLoading">
+                                <div class="spinner"></div>
+                                <p>AI作家正在构思中...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>🌟 专为青少年设计 · 传承中华传统文化 🌟</p>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
