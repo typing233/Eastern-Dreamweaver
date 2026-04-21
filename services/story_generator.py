@@ -1,18 +1,19 @@
 import json
-from openai import OpenAI
 from config import Config
 
 class StoryGenerator:
     def __init__(self):
-        self.client = None
-        self._init_client()
+        self.default_client = None
+        self._init_default_client()
     
-    def _init_client(self):
+    def _init_default_client(self):
         if Config.DEEPSEEK_API_KEY:
-            self.client = OpenAI(
-                api_key=Config.DEEPSEEK_API_KEY,
-                base_url=Config.DEEPSEEK_BASE_URL
-            )
+            self.default_client = Config.get_api_client()
+    
+    def _get_client(self, api_key: str = None, base_url: str = None):
+        if api_key:
+            return Config.get_api_client(api_key, base_url)
+        return self.default_client
     
     def _build_prompt(self, elements: list, style: str = "fairy_tale") -> str:
         element_names = ", ".join([e["name"] for e in elements])
@@ -58,11 +59,14 @@ class StoryGenerator:
         
         return prompt
     
-    def generate_story(self, elements: list, style: str = "fairy_tale") -> dict:
-        if not self.client:
+    def generate_story(self, elements: list, style: str = "fairy_tale", 
+                       api_key: str = None, base_url: str = None) -> dict:
+        client = self._get_client(api_key, base_url)
+        
+        if not client:
             return {
                 "success": False,
-                "error": "Deepseek API密钥未配置，请在.env文件中设置DEEPSEEK_API_KEY"
+                "error": "Deepseek API密钥未配置，请在页面配置API密钥"
             }
         
         if len(elements) < Config.MIN_ELEMENTS or len(elements) > Config.MAX_ELEMENTS:
@@ -74,7 +78,7 @@ class StoryGenerator:
         try:
             prompt = self._build_prompt(elements, style)
             
-            response = self.client.chat.completions.create(
+            response = client.chat.completions.create(
                 model="deepseek-chat",
                 messages=[
                     {"role": "system", "content": "你是一位才华横溢的国风故事创作者，擅长将中国传统文化元素融入精彩的故事创作中。"},
@@ -88,7 +92,7 @@ class StoryGenerator:
             
             image_prompt = self._build_image_prompt(story, elements)
             
-            image_response = self.client.chat.completions.create(
+            image_response = client.chat.completions.create(
                 model="deepseek-chat",
                 messages=[
                     {"role": "system", "content": "你是一位专业的中国画师，擅长创作中国传统线稿插图。"},
@@ -109,7 +113,13 @@ class StoryGenerator:
             }
             
         except Exception as e:
+            error_msg = str(e)
+            if "api_key" in error_msg.lower() or "authentication" in error_msg.lower():
+                return {
+                    "success": False,
+                    "error": "API密钥无效，请检查您的Deepseek API密钥是否正确"
+                }
             return {
                 "success": False,
-                "error": f"生成故事时发生错误: {str(e)}"
+                "error": f"生成故事时发生错误: {error_msg}"
             }

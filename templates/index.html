@@ -31,6 +31,37 @@
                     </select>
                 </div>
 
+                <div class="api-config-section" id="apiConfigSection">
+                    <div class="api-config-header">
+                        <span class="config-icon">🔑</span>
+                        <span class="config-title">API密钥配置</span>
+                        <button class="toggle-btn" id="toggleApiConfig">展开配置</button>
+                    </div>
+                    <div class="api-config-content" id="apiConfigContent" style="display: none;">
+                        <div class="config-item">
+                            <label for="apiKeyInput">Deepseek API密钥：</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="apiKeyInput" placeholder="请输入您的Deepseek API密钥">
+                                <button class="toggle-visibility" id="toggleKeyVisibility">👁️</button>
+                            </div>
+                            <p class="config-hint">💡 密钥仅保存在本地浏览器，不会上传到服务器</p>
+                        </div>
+                        <div class="config-item">
+                            <label for="baseUrlInput">API接口地址（可选）：</label>
+                            <input type="text" id="baseUrlInput" placeholder="默认: https://api.deepseek.com">
+                            <p class="config-hint">使用默认地址可留空</p>
+                        </div>
+                        <div class="config-actions">
+                            <button class="btn btn-outline" id="saveApiConfig">💾 保存配置</button>
+                            <button class="btn btn-secondary" id="clearApiConfig">🗑️ 清除配置</button>
+                        </div>
+                    </div>
+                    <div class="api-status" id="apiStatus">
+                        <span class="status-dot" id="statusDot"></span>
+                        <span class="status-text" id="statusText">未配置API密钥</span>
+                    </div>
+                </div>
+
                 <div class="categories-container" id="categoriesContainer">
                 </div>
 

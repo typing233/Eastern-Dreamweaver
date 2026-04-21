@@ -34,6 +34,8 @@ def generate_story():
     
     selected_elements = data.get('elements', [])
     style = data.get('style', 'fairy_tale')
+    api_key = data.get('api_key', '').strip()
+    base_url = data.get('base_url', '').strip() or None
     
     if len(selected_elements) < Config.MIN_ELEMENTS or len(selected_elements) > Config.MAX_ELEMENTS:
         return jsonify({
@@ -52,7 +54,12 @@ def generate_story():
         if elem_id in elements_map:
             selected_items.append(elements_map[elem_id])
     
-    result = story_generator.generate_story(selected_items, style)
+    result = story_generator.generate_story(
+        selected_items, 
+        style,
+        api_key=api_key if api_key else None,
+        base_url=base_url
+    )
     
     return jsonify(result)
 
